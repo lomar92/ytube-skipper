@@ -37,8 +37,8 @@ whisper = ["faster-whisper>=1.0,<2.0"]
 ytsum = "ytsum.cli:main"
 
 [project.urls]
-"Source" = "https://github.com/lomar92/ytsum"
-"Bug Tracker" = "https://github.com/lomar92/ytsum/issues"
+"Source" = "https://github.com/lomar92/ytube-skipper"
+"Bug Tracker" = "https://github.com/lomar92/ytube-skipper/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]

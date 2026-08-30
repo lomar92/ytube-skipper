@@ -19,7 +19,7 @@ Works with 20-minute news clips and 3-hour podcasts alike.
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/lomar92/ytsum ~/ytsum
+git clone https://github.com/lomar92/ytube-skipper ~/ytsum
 cd ~/ytsum
 ```
 
