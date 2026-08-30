@@ -13,10 +13,10 @@ _ytsum() {
       anthropic\:"Claude — paid"
     ))' \
     '--model=[Model ID (depends on provider)]:model:_ytsum_models' \
-    '--profile=[Path to interests.yaml]:file:_files -g "*.yaml *.yml"' \
+    '--profile=[Path to interests.yaml (personalises relevance scoring)]:file:_files -g "*.yaml *.yml"' \
     '--json[JSON output instead of terminal view (--vault is ignored with JSON)]' \
     '--save[Save locally immediately without prompting]' \
-    '--vault=[Obsidian vault root — saves to 04 Resources/YouTube Notes/]:directory:_directories' \
+    '--vault=[Obsidian vault root — saves to YouTube Notes/ (overrides YTSUM_VAULT env var)]:directory:_directories' \
     '--no-cache[Bypass cache — reprocess transcript and analysis]' \
     '(--no-whisper)--whisper-model=[Whisper audio fallback model size]:size:((
       tiny\:"Fastest — short videos with clear speech"
@@ -27,7 +27,8 @@ _ytsum() {
       large-v3\:"Latest version, significantly slower"
     ))' \
     '(--whisper-model)--no-whisper[No Whisper fallback — fail if no YouTube subtitles available]' \
-    '--prompt=[Custom prompt template instead of built-in analysis.md]:file:_files -g "*.md"'
+    '--prompt=[Custom prompt template instead of built-in analysis.md]:file:_files -g "*.md"' \
+    '*:YouTube URL:'
 }
 
 _ytsum_models() {
