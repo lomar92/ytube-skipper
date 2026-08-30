@@ -1,0 +1,75 @@
+#compdef ytsum
+# Zsh tab completion for ytsum
+# Supports: all flags, provider-aware model suggestions,
+# mutual exclusion of --no-whisper / --whisper-model
+
+_ytsum() {
+  _arguments -s -S \
+    '(-h --help)'{-h,--help}'[Show help and exit]' \
+    '--provider=[LLM provider]:provider:((
+      gemini\:"Free — Google AI Studio (default)"
+      groq\:"Free, very fast — LLaMA"
+      ollama\:"Local, no API key required"
+      anthropic\:"Claude — paid"
+    ))' \
+    '--model=[Model ID (depends on provider)]:model:_ytsum_models' \
+    '--profile=[Path to interests.yaml]:file:_files -g "*.yaml *.yml"' \
+    '--json[JSON output instead of terminal view (--vault is ignored with JSON)]' \
+    '--save[Save locally immediately without prompting]' \
+    '--vault=[Obsidian vault root — saves to 04 Resources/YouTube Notes/]:directory:_directories' \
+    '--no-cache[Bypass cache — reprocess transcript and analysis]' \
+    '(--no-whisper)--whisper-model=[Whisper audio fallback model size]:size:((
+      tiny\:"Fastest — short videos with clear speech"
+      base\:"Default — good balance"
+      small\:"Better quality"
+      medium\:"High quality"
+      large-v2\:"Best quality, significantly slower"
+      large-v3\:"Latest version, significantly slower"
+    ))' \
+    '(--whisper-model)--no-whisper[No Whisper fallback — fail if no YouTube subtitles available]' \
+    '--prompt=[Custom prompt template instead of built-in analysis.md]:file:_files -g "*.md"'
+}
+
+_ytsum_models() {
+  # Detect provider from already-typed arguments
+  local provider i
+  for (( i = 1; i < $#words; i++ )); do
+    if [[ ${words[i]} == --provider=* ]]; then
+      provider=${words[i]#--provider=}
+      break
+    elif [[ ${words[i]} == --provider && -n ${words[i+1]} && ${words[i+1]} != -* ]]; then
+      provider=${words[i+1]}
+      break
+    fi
+  done
+
+  case $provider in
+    anthropic)
+      _values 'Claude models' \
+        'claude-sonnet-4-6[Default — best quality/cost balance]' \
+        'claude-opus-4-6[Maximum quality, higher cost]' \
+        'claude-haiku-4-5-20251001[Fast and affordable]'
+      ;;
+    groq)
+      _values 'Groq models' \
+        'llama-3.3-70b-versatile[Default — very fast]' \
+        'llama-3.1-8b-instant[Ultra-fast, lower quality]'
+      ;;
+    ollama)
+      _values 'Ollama models' \
+        'llama3.2[Default]' \
+        'llama3.1[Larger model]' \
+        'mistral[Alternative]' \
+        'gemma2[Google Gemma]'
+      ;;
+    *)
+      # Gemini (default) or unknown provider
+      _values 'Gemini models' \
+        'gemini-3.6-flash[Default — free (Free Tier)]' \
+        'gemini-2.5-flash[Stable, free]' \
+        'gemini-2.5-pro[Best quality, paid]'
+      ;;
+  esac
+}
+
+_ytsum "$@"

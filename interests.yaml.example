@@ -1,0 +1,35 @@
+# ytsum Interest Profile — copy this file to interests.yaml and fill in your own interests.
+# ─────────────────────────────────────────────────────────────────
+# language:        Output language for all analysis fields
+# always_relevant: YouTube channel names — always score at least 7/10
+# keywords:        Free keywords — score +2 if prominent in video
+#                  Good for hobbies and niche topics without a main category
+# high:            Core topics — maximum coverage, full detail
+#                  Format: "Topic": "aspect1, aspect2, aspect3"
+# medium:          Mention when clearly relevant (simple list)
+# low:             Only when exceptionally significant (simple list)
+# ─────────────────────────────────────────────────────────────────
+
+language: English
+
+always_relevant:
+  - "Kurzgesagt – In a Nutshell"
+  - "Veritasium"
+
+keywords:
+  - Fermentation
+  - Cycling
+  - Astrophotography
+
+high:
+  "Space & Astrophysics": "black holes, exoplanets, James Webb, dark matter, cosmology, space missions"
+  "Climate Tech & Energy": "solar, wind, battery storage, carbon capture, hydrogen, nuclear fusion"
+  "History & Archaeology": "ancient civilizations, Roman Empire, Bronze Age, medieval history, discoveries"
+
+medium:
+  - Cooking & Food Science
+  - Endurance Sports & Nutrition
+
+low:
+  - Architecture & Urban Planning
+  - Philosophy of Mind

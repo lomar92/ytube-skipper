@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ytsum"
+version = "0.1.0"
+description = "YouTube Transcribe & Summarize CLI — decide in <60s whether to watch, skip, or extract value."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+keywords = ["youtube", "summarize", "llm", "transcribe", "cli", "gemini", "whisper"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: End Users/Desktop",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Multimedia :: Video",
+  "Topic :: Utilities",
+]
+dependencies = [
+  "openai>=1.0,<2.0",
+  "yt-dlp>=2024.8",
+  "youtube-transcript-api>=0.6,<1.0",
+  "pyyaml>=6.0,<7.0",
+]
+
+[project.optional-dependencies]
+anthropic = ["anthropic>=0.34,<1.0"]
+whisper = ["faster-whisper>=1.0,<2.0"]
+
+[project.scripts]
+ytsum = "ytsum.cli:main"
+
+[project.urls]
+"Source" = "https://github.com/lomar92/ytsum"
+"Bug Tracker" = "https://github.com/lomar92/ytsum/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ytsum*"]
+
+[tool.setuptools.package-data]
+ytsum = ["prompts/*.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v"
