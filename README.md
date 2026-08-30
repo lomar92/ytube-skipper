@@ -279,7 +279,7 @@ ytsum URL [URL ...] [options]
 | `--vault PATH` | `$YTSUM_VAULT` | Obsidian vault root (overrides env variable) |
 | `--json` | — | JSON output instead of terminal view (--vault is ignored with JSON) |
 | `--no-cache` | — | Bypass cache — reprocess everything |
-| `--whisper-model SIZE` | `base` | Whisper size: `tiny`, `base`, `small`, `medium`, `large-v3` |
+| `--whisper-model SIZE` | `base` | Whisper size: `tiny`, `base`, `small`, `medium`, `large-v2`, `large-v3` |
 | `--no-whisper` | — | No Whisper fallback — fail if no subtitles available |
 | `--prompt PATH` | Built-in | Custom prompt template instead of `prompts/analysis.md` |
 
@@ -292,8 +292,9 @@ ytsum URL [URL ...] [options]
 API key at https://aistudio.google.com — Free Tier is sufficient.
 
 ```bash
-ytsum <url>                                # gemini-2.5-flash (default)
-ytsum <url> --model gemini-2.5-pro         # better quality, slightly slower
+ytsum <url>                                # gemini-3.6-flash (default)
+ytsum <url> --model gemini-2.5-pro         # best quality, paid
+ytsum <url> --model gemini-2.5-flash       # previous default, free tier
 ```
 
 ### Anthropic Claude
@@ -333,6 +334,7 @@ ytsum fetches transcripts in this priority order:
 Whisper tips:
 - `--whisper-model tiny` — fastest, good for short videos with clear speech
 - `--whisper-model base` — default, good balance
+- `--whisper-model large-v2` — high quality, significantly slower
 - `--whisper-model large-v3` — best quality, significantly slower
 - `--no-whisper` — abort immediately if no YouTube subtitles are available
 

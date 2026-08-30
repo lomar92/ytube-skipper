@@ -13,7 +13,7 @@ _ytsum() {
       anthropic\:"Claude — paid"
     ))' \
     '--model=[Model ID (depends on provider)]:model:_ytsum_models' \
-    '--profile=[Path to interests.yaml (personalises relevance scoring)]:file:_files -g "*.yaml *.yml"' \
+    '--profile=[Path to interests.yaml (personalises relevance scoring)]:file:_files -g "*.{yaml,yml}"' \
     '--json[JSON output instead of terminal view (--vault is ignored with JSON)]' \
     '--save[Save locally immediately without prompting]' \
     '--vault=[Obsidian vault root — saves to YouTube Notes/ (overrides YTSUM_VAULT env var)]:directory:_directories' \
@@ -32,9 +32,10 @@ _ytsum() {
 }
 
 _ytsum_flags() {
-  # Called at every positional (URL) slot so TAB after a URL immediately shows flags.
-  # Also handles value completion when the user selects a flag from this list and
-  # presses TAB again — detected by '=' already being present in the current word.
+  # Value dispatcher: called when a --flag= word lands at a positional slot
+  # (e.g. user selects --model= from the menu then presses TAB for its value).
+  # Flag listing is handled entirely by _arguments, which adds all available
+  # options to the completion list at positional positions automatically.
   local cur="${words[CURRENT]}"
 
   case $cur in
@@ -62,7 +63,7 @@ _ytsum_flags() {
       ;;
     --profile=*)
       compset -P '--profile='
-      _files -g '*.yaml *.yml'
+      _files -g '*.{yaml,yml}'
       return
       ;;
     --whisper-model=*)
@@ -85,22 +86,6 @@ _ytsum_flags() {
       return
       ;;
   esac
-
-  # No '=' in current word — show all available flags with descriptions.
-  local -a opts
-  opts=(
-    '--provider=:LLM provider (gemini / groq / ollama / anthropic)'
-    '--model=:Model ID for the chosen provider'
-    '--profile=:Path to interests.yaml (personalises relevance scoring)'
-    '--json:JSON output instead of terminal view'
-    '--save:Save to ./out/ immediately — vault prompt still shown if configured'
-    '--vault=:Obsidian vault root — saves to YouTube Notes/'
-    '--no-cache:Bypass cache — reprocess transcript and analysis'
-    '--whisper-model=:Whisper model size (tiny / base / small / medium / large-v2 / large-v3)'
-    '--no-whisper:No Whisper fallback — fail if no YouTube subtitles available'
-    '--prompt=:Custom prompt template (.md file)'
-  )
-  _describe 'options' opts
 }
 
 _ytsum_models() {
@@ -137,7 +122,8 @@ _ytsum_models() {
       ;;
     *)
       _values 'Gemini models' \
-        'gemini-2.5-flash[Default — free (Free Tier)]' \
+        'gemini-3.6-flash[Default — faster, improved coding & multimodal]' \
+        'gemini-2.5-flash[Stable — free (Free Tier)]' \
         'gemini-2.5-pro[Best quality, paid]' \
         'gemini-2.0-flash[Fast and efficient]'
       ;;
