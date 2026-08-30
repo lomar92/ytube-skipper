@@ -28,7 +28,79 @@ _ytsum() {
     ))' \
     '(--whisper-model)--no-whisper[No Whisper fallback — fail if no YouTube subtitles available]' \
     '--prompt=[Custom prompt template instead of built-in analysis.md]:file:_files -g "*.md"' \
-    '*:YouTube URL:'
+    '*:YouTube URL:_ytsum_flags'
+}
+
+_ytsum_flags() {
+  # Called at every positional (URL) slot so TAB after a URL immediately shows flags.
+  # Also handles value completion when the user selects a flag from this list and
+  # presses TAB again — detected by '=' already being present in the current word.
+  local cur="${words[CURRENT]}"
+
+  case $cur in
+    --provider=*)
+      compset -P '--provider='
+      local -a providers
+      providers=(
+        'gemini:Free — Google AI Studio (default)'
+        'groq:Free, very fast — LLaMA'
+        'ollama:Local, no API key required'
+        'anthropic:Claude — paid'
+      )
+      _describe 'provider' providers
+      return
+      ;;
+    --model=*)
+      compset -P '--model='
+      _ytsum_models
+      return
+      ;;
+    --vault=*)
+      compset -P '--vault='
+      _directories
+      return
+      ;;
+    --profile=*)
+      compset -P '--profile='
+      _files -g '*.yaml *.yml'
+      return
+      ;;
+    --whisper-model=*)
+      compset -P '--whisper-model='
+      local -a sizes
+      sizes=(
+        'tiny:Fastest — short videos with clear speech'
+        'base:Default — good balance'
+        'small:Better quality'
+        'medium:High quality'
+        'large-v2:Best quality, significantly slower'
+        'large-v3:Latest version, significantly slower'
+      )
+      _describe 'size' sizes
+      return
+      ;;
+    --prompt=*)
+      compset -P '--prompt='
+      _files -g '*.md'
+      return
+      ;;
+  esac
+
+  # No '=' in current word — show all available flags with descriptions.
+  local -a opts
+  opts=(
+    '--provider=:LLM provider (gemini / groq / ollama / anthropic)'
+    '--model=:Model ID for the chosen provider'
+    '--profile=:Path to interests.yaml (personalises relevance scoring)'
+    '--json:JSON output instead of terminal view'
+    '--save:Save to ./out/ immediately — vault prompt still shown if configured'
+    '--vault=:Obsidian vault root — saves to YouTube Notes/'
+    '--no-cache:Bypass cache — reprocess transcript and analysis'
+    '--whisper-model=:Whisper model size (tiny / base / small / medium / large-v2 / large-v3)'
+    '--no-whisper:No Whisper fallback — fail if no YouTube subtitles available'
+    '--prompt=:Custom prompt template (.md file)'
+  )
+  _describe 'options' opts
 }
 
 _ytsum_models() {
@@ -64,11 +136,10 @@ _ytsum_models() {
         'gemma2[Google Gemma]'
       ;;
     *)
-      # Gemini (default) or unknown provider
       _values 'Gemini models' \
-        'gemini-3.6-flash[Default — free (Free Tier)]' \
-        'gemini-2.5-flash[Stable, free]' \
-        'gemini-2.5-pro[Best quality, paid]'
+        'gemini-2.5-flash[Default — free (Free Tier)]' \
+        'gemini-2.5-pro[Best quality, paid]' \
+        'gemini-2.0-flash[Fast and efficient]'
       ;;
   esac
 }
