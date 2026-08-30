@@ -4,7 +4,7 @@
 # mutual exclusion of --no-whisper / --whisper-model
 
 _ytsum() {
-  _arguments -s -S \
+  _arguments -s \
     '(-h --help)'{-h,--help}'[Show help and exit]' \
     '--provider=[LLM provider]:provider:((
       gemini\:"Free — Google AI Studio (default)"
