@@ -201,7 +201,7 @@ After the analysis you are interactively asked where to save (when `YTSUM_VAULT`
 ```
   Save?  ★ High relevance
     [1] Local (./out/)
-    [2] Vault (YouTube Notizen/)
+    [2] Vault (Video Notes/)
     [3] Both
     [n] No
   Input:
