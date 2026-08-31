@@ -55,7 +55,7 @@ def load_profile(path: Path) -> Profile:
     if not isinstance(keywords, list):
         raise ProfileError(f"{path}: 'keywords' muss eine Liste sein.")
 
-    if not any([high, medium, low]):
+    if not any([high, medium, low, always, keywords]):
         raise ProfileError(f"{path}: Profil ist leer — mindestens ein Interesse eintragen.")
 
     return Profile(

@@ -51,7 +51,7 @@ Examples:
         "--model",
         default=None,
         metavar="MODEL",
-        help="Model ID (default: provider's default, e.g. gemini-2.5-flash)",
+        help="Model ID (default: provider's default, e.g. gemini-3.6-flash)",
     )
     parser.add_argument(
         "--profile",

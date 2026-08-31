@@ -6,15 +6,6 @@ import re
 from dataclasses import asdict
 from pathlib import Path
 
-# YouTube video IDs are exactly 11 characters: alphanumeric, hyphen, underscore.
-_VIDEO_ID_RE = re.compile(r"^[A-Za-z0-9_-]{6,16}$")
-
-
-def _validate_video_id(video_id: str) -> None:
-    """Reject malformed IDs to prevent path-traversal attacks on cache files."""
-    if not _VIDEO_ID_RE.match(video_id):
-        raise ValueError(f"Invalid video_id: {video_id!r}")
-
 from .models import (
     Analysis,
     CostReport,
@@ -24,6 +15,15 @@ from .models import (
     Transcript,
     VideoMeta,
 )
+
+# YouTube video IDs are exactly 11 characters: alphanumeric, hyphen, underscore.
+_VIDEO_ID_RE = re.compile(r"^[A-Za-z0-9_-]{11}$")
+
+
+def _validate_video_id(video_id: str) -> None:
+    """Reject malformed IDs to prevent path-traversal attacks on cache files."""
+    if not _VIDEO_ID_RE.match(video_id):
+        raise ValueError(f"Invalid video_id: {video_id!r}")
 
 
 def cache_dir() -> Path:

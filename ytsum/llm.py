@@ -358,7 +358,7 @@ def parse_llm_response(response: str, video_id: str, duration: int) -> Analysis:
 def analyze_video(
     transcript: Transcript,
     profile: Profile,
-    model: str = "gemini-2.5-flash",
+    model: str = "gemini-3.6-flash",
     provider: str = "gemini",
     prompt_path: Path | None = None,
 ) -> tuple[Analysis, CostReport]:

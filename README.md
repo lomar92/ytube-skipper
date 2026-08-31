@@ -251,10 +251,10 @@ Every vault note includes frontmatter that Obsidian reads natively:
 ```yaml
 ---
 tags: ["youtube", "veritasium", "space-astrophysics"]
-channel: "Veritasium"
-date: 2024-11-15
+kanal: "Veritasium"
+datum: 2024-11-15
 url: https://youtu.be/...
-relevance: 9/10
+relevanz: 9/10
 verdict: watch
 ---
 ```
