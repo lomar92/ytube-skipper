@@ -227,22 +227,24 @@ ytsum can save analyses directly into an [Obsidian](https://obsidian.md) vault a
 
 ### Setup
 
-Point ytsum at your vault root via the `--vault` flag or the `YTSUM_VAULT` environment variable:
+Set `YTSUM_VAULT` (or `--vault`) to the **exact folder** where notes should land.
+ytsum saves directly into that directory — no subfolder is added automatically.
 
 ```bash
-export YTSUM_VAULT="/path/to/your/ObsidianVault"
+export YTSUM_VAULT="/path/to/your/vault/04 Ressourcen/YouTube Notizen"
 ytsum <url>
 ```
 
 Or per-run:
 
 ```bash
-ytsum <url> --vault "/path/to/your/ObsidianVault"
+ytsum <url> --vault "/path/to/your/vault/04 Ressourcen/YouTube Notizen"
 ```
 
 ### Where files land
 
-Notes are saved to `<vault>/YouTube Notes/<date>-<channel>-<title>.md`.
+Notes are saved directly to `<YTSUM_VAULT>/<date>-<channel>-<title>.md`.
+Point the path at any folder inside your vault — Obsidian subfolder, PARA section, language-specific directory, whatever fits your structure.
 
 ### Obsidian YAML frontmatter
 
@@ -276,7 +278,7 @@ ytsum URL [URL ...] [options]
 | `--model MODEL` | Provider default | e.g. `gemini-2.5-pro`, `claude-sonnet-4-6` |
 | `--profile PATH` | `./interests.yaml` | Path to the interest profile |
 | `--save` | — | Save locally immediately without prompting |
-| `--vault PATH` | `$YTSUM_VAULT` | Obsidian vault root (overrides env variable) |
+| `--vault PATH` | `$YTSUM_VAULT` | Exact output directory for Obsidian notes (overrides env variable) |
 | `--json` | — | JSON output instead of terminal view (--vault is ignored with JSON) |
 | `--no-cache` | — | Bypass cache — reprocess everything |
 | `--whisper-model SIZE` | `base` | Whisper size: `tiny`, `base`, `small`, `medium`, `large-v2`, `large-v3` |

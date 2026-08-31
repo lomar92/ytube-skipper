@@ -100,7 +100,7 @@ Examples:
         type=Path,
         default=None,
         metavar="PATH",
-        help='Obsidian vault root — saves to <vault>/YouTube Notes/ with YAML frontmatter',
+        help='Exact directory for Obsidian notes with YAML frontmatter (overrides YTSUM_VAULT env var)',
     )
     parser.add_argument(
         "--prompt",
@@ -238,9 +238,8 @@ def process_video(url: str, args: argparse.Namespace, profile) -> int:
             print(f"\n  Lokal gespeichert:    {path}", file=sys.stderr)
 
         if save_vault:
-            vault_dir = args.vault / "YouTube Notes"
             md_vault = render_markdown(transcript, analysis, cost, with_frontmatter=True, language=profile.language)
-            path = save_to_file(transcript, analysis, md_vault, output_dir=vault_dir)
+            path = save_to_file(transcript, analysis, md_vault, output_dir=args.vault)
             print(f"\n  Vault gespeichert: {path}", file=sys.stderr)
 
     return 0
