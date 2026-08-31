@@ -1,6 +1,7 @@
 """YouTube subtitle fetching + Whisper fallback + speaker detection."""
 
 import re
+import sys
 import time
 from pathlib import Path
 
@@ -162,7 +163,9 @@ def download_audio(video_id: str, cache_dir: Path) -> Path:
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
-            ext = info.get("ext", "m4a")
+            # Sanitise ext: strip non-alphanumeric chars to prevent path traversal
+            # if a malicious or compromised server returns e.g. "../../../evil".
+            ext = re.sub(r"[^A-Za-z0-9]", "", info.get("ext", "m4a"))[:10] or "m4a"
     except yt_dlp.utils.DownloadError as e:
         raise NetworkError(f"Audio-Download fehlgeschlagen: {e}\nNetzwerk prüfen oder später erneut versuchen.") from e
 
@@ -196,10 +199,10 @@ def transcribe_with_whisper(
             "Oder --no-whisper nutzen um auf Untertitel zu bestehen."
         )
 
-    print(f"  Lade Whisper-Modell '{model_size}'…")
+    print(f"  Lade Whisper-Modell '{model_size}'…", file=sys.stderr)
     model = WhisperModel(model_size, device="cpu", compute_type="int8")
 
-    print(f"  Starte Transkription ({audio_path.name})…")
+    print(f"  Starte Transkription ({audio_path.name})…", file=sys.stderr)
     raw_segments, info = model.transcribe(str(audio_path), beam_size=5)
 
     total_duration = info.duration or 0
@@ -221,12 +224,12 @@ def transcribe_with_whisper(
                     eta_str = f"{eta // 60}m {eta % 60:02d}s verbleibend"
                 else:
                     eta_str = f"~{eta}s verbleibend"
-                print(f"\r  [{bar}] {pct:3d}%  {eta_str}    ", end="", flush=True)
+                print(f"\r  [{bar}] {pct:3d}%  {eta_str}    ", end="", flush=True, file=sys.stderr)
                 last_pct = pct
 
     elapsed_total = int(time.time() - start_time)
     m, s = elapsed_total // 60, elapsed_total % 60
-    print(f"\r  [{'█' * 20}] 100%  fertig in {m}m {s:02d}s                        ")
+    print(f"\r  [{'█' * 20}] 100%  fertig in {m}m {s:02d}s                        ", file=sys.stderr)
 
     return segments, info.language
 
@@ -289,27 +292,32 @@ def get_transcript(
     video_id: str,
     use_whisper_fallback: bool = True,
     whisper_model: str = "base",
+    keep_audio: bool = False,
     cache_audio_dir: Path | None = None,
 ) -> Transcript:
     """
     Primary entry: YouTube subtitles first, Whisper fallback.
     Raises TranscriptError if neither works.
+
+    keep_audio: if True, the downloaded audio file is kept after transcription.
+                Default (False) deletes it immediately — the JSON transcript is
+                the permanent record and audio is not needed afterwards.
     """
     from .cache import cache_dir as get_cache_dir
 
-    print(f"  Metadaten werden geladen…")
+    print("  Metadaten werden geladen…", file=sys.stderr)
     meta = fetch_video_meta(video_id)
     from .output import format_ts
     dur_str = format_ts(meta.duration)
-    print(f"  \"{meta.title}\" ({meta.channel}, {dur_str})")
+    print(f"  \"{meta.title}\" ({meta.channel}, {dur_str})", file=sys.stderr)
 
-    print("  Suche nach YouTube-Untertiteln…")
+    print("  Suche nach YouTube-Untertiteln…", file=sys.stderr)
     result = fetch_youtube_subtitles(video_id)
 
     if result is not None:
         segments, language, source = result
         source_label = "manuelle Untertitel" if source == "manual_subtitles" else "automatische Untertitel"
-        print(f"  Untertitel gefunden: {source_label} ({language}), {len(segments)} Segmente.")
+        print(f"  Untertitel gefunden: {source_label} ({language}), {len(segments)} Segmente.", file=sys.stderr)
         segments = detect_speakers(segments)
         return Transcript(meta=meta, language=language, segments=segments, source=source)
 
@@ -319,17 +327,25 @@ def get_transcript(
             "Ohne --no-whisper wird automatisch Whisper als Fallback genutzt."
         )
 
-    print("  Keine Untertitel gefunden — Fallback auf Whisper-Transkription.")
-    print(f"  Hinweis: Bei {dur_str} Videolänge kann das einige Minuten dauern.")
+    print("  Keine Untertitel gefunden — Fallback auf Whisper-Transkription.", file=sys.stderr)
+    print(f"  Hinweis: Bei {dur_str} Videolänge kann das einige Minuten dauern.", file=sys.stderr)
     audio_cache = cache_audio_dir or (get_cache_dir() / "audio")
     audio_cache.mkdir(parents=True, exist_ok=True)
 
-    print("  Audio wird heruntergeladen…")
+    print("  Audio wird heruntergeladen…", file=sys.stderr)
     audio_path = download_audio(video_id, audio_cache)
-    print(f"  Audio gespeichert: {audio_path.name} ({audio_path.stat().st_size / 1024 / 1024:.1f} MB)")
+    print(f"  Audio gespeichert: {audio_path.name} ({audio_path.stat().st_size / 1024 / 1024:.1f} MB)", file=sys.stderr)
 
-    segments, language = transcribe_with_whisper(audio_path, model_size=whisper_model)
+    try:
+        segments, language = transcribe_with_whisper(audio_path, model_size=whisper_model)
+    finally:
+        if not keep_audio:
+            audio_path.unlink(missing_ok=True)
+
+    if keep_audio:
+        print(f"  Audio behalten: {audio_path}", file=sys.stderr)
+
     segments = detect_speakers(segments)
-    print(f"  Transkription abgeschlossen: {len(segments)} Segmente, Sprache: {language}")
+    print(f"  Transkription abgeschlossen: {len(segments)} Segmente, Sprache: {language}", file=sys.stderr)
 
     return Transcript(meta=meta, language=language, segments=segments, source="whisper")

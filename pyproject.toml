@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ytsum"
-version = "0.1.0"
+version = "1.1.0"
 description = "YouTube Transcribe & Summarize CLI — decide in <60s whether to watch, skip, or extract value."
 readme = "README.md"
 license = { text = "MIT" }

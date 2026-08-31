@@ -27,6 +27,7 @@ _ytsum() {
       large-v3\:"Latest version, significantly slower"
     ))' \
     '(--whisper-model)--no-whisper[No Whisper fallback — fail if no YouTube subtitles available]' \
+    '(--no-whisper)--keep-audio[Keep downloaded audio file after Whisper transcription (default: delete after use)]' \
     '--prompt=[Custom prompt template instead of built-in analysis.md]:file:_files -g "*.md"' \
     '*:YouTube URL:_ytsum_flags'
 }

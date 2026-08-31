@@ -89,6 +89,13 @@ Examples:
         help="Fail if no subtitles — do not fall back to Whisper",
     )
     parser.add_argument(
+        "--keep-audio",
+        action="store_true",
+        help="Keep downloaded audio file after Whisper transcription (default: delete after use). "
+             "No effect when YouTube subtitles are found or --no-whisper is set. "
+             "File is kept at ~/.cache/ytsum/audio/<id>.<ext>",
+    )
+    parser.add_argument(
         "--vault",
         type=Path,
         default=None,
@@ -153,6 +160,7 @@ def process_video(url: str, args: argparse.Namespace, profile) -> int:
                 video_id,
                 use_whisper_fallback=not args.no_whisper,
                 whisper_model=args.whisper_model,
+                keep_audio=args.keep_audio,
             )
         except TranscriptError as e:
             print(f"\n[FEHLER] {e}", file=sys.stderr)

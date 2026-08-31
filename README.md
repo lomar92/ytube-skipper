@@ -281,6 +281,7 @@ ytsum URL [URL ...] [options]
 | `--no-cache` | — | Bypass cache — reprocess everything |
 | `--whisper-model SIZE` | `base` | Whisper size: `tiny`, `base`, `small`, `medium`, `large-v2`, `large-v3` |
 | `--no-whisper` | — | No Whisper fallback — fail if no subtitles available |
+| `--keep-audio` | — | Keep downloaded audio after Whisper transcription (default: delete). No effect when subtitles are found or `--no-whisper` is set |
 | `--prompt PATH` | Built-in | Custom prompt template instead of `prompts/analysis.md` |
 
 ---
@@ -346,11 +347,15 @@ Transcripts are cached — a video is never transcribed twice.
 
 ```
 ~/.cache/ytsum/
-├── transcripts/<video_id>.json          # valid regardless of profile changes
-└── analyses/<video_id>_<hash>.json      # invalidated automatically when interests.yaml changes
+├── transcripts/<video_id>.json          # permanent — valid regardless of profile changes
+├── analyses/<video_id>_<hash>.json      # invalidated automatically when interests.yaml changes
+└── audio/<video_id>.<ext>               # temporary — deleted after Whisper transcription by default
+                                         # use --keep-audio to retain
 ```
 
 Bypass cache entirely: `ytsum <url> --no-cache`
+
+> **Upgrading from an earlier version?** Audio files from previous runs are not cleaned up automatically. Remove them with: `rm ~/.cache/ytsum/audio/*`
 
 ---
 
