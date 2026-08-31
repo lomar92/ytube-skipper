@@ -201,11 +201,13 @@ After the analysis you are interactively asked where to save (when `YTSUM_VAULT`
 ```
   Save?  ★ High relevance
     [1] Local (./out/)
-    [2] Vault (YouTube Notes/)
+    [2] Vault (YouTube Notizen/)
     [3] Both
     [n] No
   Input:
 ```
+
+The vault option label shows the **name of your configured folder** — whatever you set in `YTSUM_VAULT`.
 
 Without a configured vault, only the local option is shown:
 

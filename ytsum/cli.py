@@ -283,7 +283,7 @@ def _ask_where_to_save(
         prompt = (
             f"\n  Speichern?{hint}\n"
             "    [1] Lokal (./out/)\n"
-            "    [2] Vault (YouTube Notes/)\n"
+            f"    [2] Vault ({vault.name}/)\n"
             "    [3] Beides\n"
             "    [n] Nein\n"
             "  Eingabe: "
