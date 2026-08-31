@@ -231,14 +231,14 @@ Set `YTSUM_VAULT` (or `--vault`) to the **exact folder** where notes should land
 ytsum saves directly into that directory — no subfolder is added automatically.
 
 ```bash
-export YTSUM_VAULT="/path/to/your/vault/04 Ressourcen/YouTube Notizen"
+export YTSUM_VAULT="/path/to/your/notes/folder"
 ytsum <url>
 ```
 
 Or per-run:
 
 ```bash
-ytsum <url> --vault "/path/to/your/vault/04 Ressourcen/YouTube Notizen"
+ytsum <url> --vault "/path/to/your/notes/folder"
 ```
 
 ### Where files land
