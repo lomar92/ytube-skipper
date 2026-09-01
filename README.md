@@ -4,6 +4,32 @@ YouTube Transcribe & Summarize CLI — analyses videos against your personal int
 
 Works with 20-minute news clips and 3-hour podcasts alike.
 
+**How it works:** ytsum fetches the transcript (YouTube subtitles or local Whisper transcription as fallback), sends it together with your interest profile to an LLM, and returns a structured verdict — relevance score, core thesis, key points with timestamps, and sections to skip. Results are cached so a video is never processed twice.
+
+---
+
+## Contents
+
+**Getting Started**
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [LLM Providers](#llm-providers)
+- [Usage](#usage)
+
+**Reference**
+- [Saving results](#saving-results)
+- [Obsidian Vault Integration](#obsidian-vault-integration)
+- [All CLI flags](#all-cli-flags)
+- [Transcription](#transcription)
+- [Cache](#cache)
+- [Output verdict](#output-verdict)
+- [Long videos (Map-Reduce)](#long-videos-map-reduce)
+- [Customising the prompt](#customising-the-prompt)
+- [Shell Completion (Oh My Zsh)](#shell-completion-oh-my-zsh)
+- [Project structure](#project-structure)
+- [Known limitations](#known-limitations)
+
 ---
 
 ## Requirements
@@ -51,53 +77,6 @@ pip install -e ".[whisper]"
 ```bash
 pip install -e ".[anthropic]"
 ```
-
----
-
-## Shell Completion (Oh My Zsh)
-
-The project includes an Oh My Zsh plugin with tab completion for all flags.
-
-### Installation
-
-**Step 1 — Link the plugin directory** (recommended — updates automatically when the repo changes):
-
-```bash
-ln -s ~/ytsum/completions ~/.oh-my-zsh/custom/plugins/ytsum
-```
-
-Or copy (requires manual update when flags change):
-
-```bash
-cp -r ~/ytsum/completions ~/.oh-my-zsh/custom/plugins/ytsum
-```
-
-**Step 2 — Enable the plugin** in `~/.zshrc`:
-
-```bash
-plugins=(... ytsum)
-```
-
-**Step 3 — Reload the shell:**
-
-```bash
-source ~/.zshrc
-```
-
-### What the completion provides
-
-```bash
-ytsum <url> <TAB>                          # all flags with descriptions
-ytsum <url> --provider <TAB>               # gemini / groq / ollama / anthropic
-ytsum <url> --provider anthropic --model <TAB>  # Claude models only
-ytsum <url> --provider gemini --model <TAB>     # Gemini models only
-ytsum <url> --whisper-model <TAB>          # tiny / base / small / medium / large-v2 / large-v3
-ytsum <url> --vault <TAB>                  # directory completion
-ytsum <url> --profile <TAB>               # *.yaml files
-ytsum <url> --prompt <TAB>                # *.md files
-```
-
-`--no-whisper` and `--whisper-model` are mutually exclusive — once one is used, the other is no longer suggested.
 
 ---
 
@@ -165,6 +144,44 @@ See `interests.yaml.example` for a full template with comments.
 
 ---
 
+## LLM Providers
+
+### Gemini (default, free)
+
+API key at https://aistudio.google.com — Free Tier is sufficient.
+
+```bash
+ytsum <url>                                # gemini-3.6-flash (default)
+ytsum <url> --model gemini-2.5-pro         # best quality, paid
+ytsum <url> --model gemini-2.5-flash       # previous default, free tier
+```
+
+### Anthropic Claude
+
+```bash
+pip install -e ".[anthropic]"
+export ANTHROPIC_API_KEY="sk-ant-..."
+ytsum <url> --provider anthropic           # claude-sonnet-4-6 (default)
+ytsum <url> --provider anthropic --model claude-opus-4-6
+```
+
+### Groq (free, very fast)
+
+```bash
+export GROQ_API_KEY="your-key"
+ytsum <url> --provider groq                # llama-3.3-70b-versatile
+```
+
+### Ollama (local, no API key needed)
+
+```bash
+ollama pull llama3.2
+ytsum <url> --provider ollama
+ytsum <url> --provider ollama --model mistral
+```
+
+---
+
 ## Usage
 
 ### Basic command
@@ -194,7 +211,7 @@ Required after changes to the prompt template. Changes to `interests.yaml` autom
 
 ---
 
-## Saving
+## Saving results
 
 After the analysis you are interactively asked where to save (when `YTSUM_VAULT` is set):
 
@@ -264,7 +281,7 @@ verdict: watch
 ```
 
 Tags are generated automatically from the channel name and the matched interest topics.
-The `relevance` and `verdict` fields make it easy to filter and sort notes in Obsidian's database views or Dataview plugin.
+The `relevanz` and `verdict` fields make it easy to filter and sort notes in Obsidian's database views or Dataview plugin.
 
 ---
 
@@ -287,44 +304,6 @@ ytsum URL [URL ...] [options]
 | `--no-whisper` | — | No Whisper fallback — fail if no subtitles available |
 | `--keep-audio` | — | Keep downloaded audio after Whisper transcription (default: delete). No effect when subtitles are found or `--no-whisper` is set |
 | `--prompt PATH` | Built-in | Custom prompt template instead of `prompts/analysis.md` |
-
----
-
-## LLM Providers
-
-### Gemini (default, free)
-
-API key at https://aistudio.google.com — Free Tier is sufficient.
-
-```bash
-ytsum <url>                                # gemini-3.6-flash (default)
-ytsum <url> --model gemini-2.5-pro         # best quality, paid
-ytsum <url> --model gemini-2.5-flash       # previous default, free tier
-```
-
-### Anthropic Claude
-
-```bash
-pip install -e ".[anthropic]"
-export ANTHROPIC_API_KEY="sk-ant-..."
-ytsum <url> --provider anthropic           # claude-sonnet-4-6 (default)
-ytsum <url> --provider anthropic --model claude-opus-4-6
-```
-
-### Groq (free, very fast)
-
-```bash
-export GROQ_API_KEY="your-key"
-ytsum <url> --provider groq                # llama-3.3-70b-versatile
-```
-
-### Ollama (local, no API key needed)
-
-```bash
-ollama pull llama3.2
-ytsum <url> --provider ollama
-ytsum <url> --provider ollama --model mistral
-```
 
 ---
 
@@ -398,6 +377,53 @@ Available placeholders:
 | `<<USER_PROFILE>>` | Formatted interest profile |
 | `<<TRANSCRIPT>>` | Full transcript or chunk summaries |
 | `<<LANGUAGE>>` | Output language from `interests.yaml` |
+
+---
+
+## Shell Completion (Oh My Zsh)
+
+The project includes an Oh My Zsh plugin with tab completion for all flags.
+
+### Installation
+
+**Step 1 — Link the plugin directory** (recommended — updates automatically when the repo changes):
+
+```bash
+ln -s ~/ytsum/completions ~/.oh-my-zsh/custom/plugins/ytsum
+```
+
+Or copy (requires manual update when flags change):
+
+```bash
+cp -r ~/ytsum/completions ~/.oh-my-zsh/custom/plugins/ytsum
+```
+
+**Step 2 — Enable the plugin** in `~/.zshrc`:
+
+```bash
+plugins=(... ytsum)
+```
+
+**Step 3 — Reload the shell:**
+
+```bash
+source ~/.zshrc
+```
+
+### What the completion provides
+
+```bash
+ytsum <url> <TAB>                          # all flags with descriptions
+ytsum <url> --provider <TAB>               # gemini / groq / ollama / anthropic
+ytsum <url> --provider anthropic --model <TAB>  # Claude models only
+ytsum <url> --provider gemini --model <TAB>     # Gemini models only
+ytsum <url> --whisper-model <TAB>          # tiny / base / small / medium / large-v2 / large-v3
+ytsum <url> --vault <TAB>                  # directory completion
+ytsum <url> --profile <TAB>               # *.yaml files
+ytsum <url> --prompt <TAB>                # *.md files
+```
+
+`--no-whisper` and `--whisper-model` are mutually exclusive — once one is used, the other is no longer suggested.
 
 ---
 
